@@ -48,7 +48,7 @@ module Whois
       # target is the global @ast if no '_section' is set, else '_section' is used.
       tokenizer :scan_keyvalue do
         if @input.scan(/(.+?):(.*?)(\n|\z)/)
-          key, value = @input[1].strip, @input[2].strip
+          key, value = @input[1].strip, remove_gdpr_message(@input[2].strip)
           target = @tmp['_section'] ? (@ast[@tmp['_section']] ||= {}) : @ast
 
           if target[key].nil?
@@ -106,6 +106,10 @@ module Whois
         unexpected_token
       end
 
+      def remove_gdpr_message(str)
+        str.gsub(/Please query the RDDS.+|The Registrar of Record.+/, '')
+      end
+
       def unexpected_token
         error!("Unexpected token")
       end
@@ -113,6 +117,7 @@ module Whois
       def error!(message)
         raise ParserError, "#{message}: #{@input.peek(@input.string.length)}"
       end
+
 
     end
 
